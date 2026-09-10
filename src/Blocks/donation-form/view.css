@@ -149,6 +149,7 @@
 
 .wp-block-famehelsinki-donation-form {
 	--hover-lighten: 16%;
+	--fame-field-gap: 0.375rem;
 }
 
 .wp-block-famehelsinki-donation-form .fame-form__wrapper {
@@ -179,6 +180,14 @@
 .wp-block-famehelsinki-donation-form .wp-block-famehelsinki-recurring-due-date {
 	margin-block-start: var(--fame-field-gap, 0.25rem) !important;
 	margin-inline: 2px;
+}
+
+/* Campaign continues the donation-type buttons instead of
+ * starting a new section.
+ */
+.wp-block-famehelsinki-donation-form .wp-block-famehelsinki-donation-campaigns {
+	margin-block-start: var(--fame-field-gap, 0.25rem) !important;
+	margin-inline: 1px;
 }
 
 .wp-block-famehelsinki-donation-form .fame-form__legend {
@@ -368,6 +377,12 @@ input {
 	color: var(--fame-clr-danger);
 	font-size: 0.8em;
 	margin-top: 0.25rem;
+}
+
+.wp-block-famehelsinki-donation-form
+.wp-block-famehelsinki-donation-amounts
+.donation-amounts__error:empty {
+	display: none;
 }
 
 .wp-block-famehelsinki-donation-form .donation-amounts__input-wrapper input[aria-invalid="true"] {

@@ -36,6 +36,7 @@
 .editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__input {
 	font-family: inherit;
 	font-size: inherit;
+	box-sizing: border-box;
 }
 
 .editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__row {
