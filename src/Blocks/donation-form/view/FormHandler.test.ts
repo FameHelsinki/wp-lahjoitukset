@@ -78,9 +78,9 @@ describe('FormHandler', () => {
 		expect(url.pathname).toBe('/donation/my%20org%2Fx')
 	})
 
-	test('getSubmitUrl appends contact and token query params', () => {
+	test('getSubmitUrl appends contact query param', () => {
 		document.body.innerHTML = `
-            <form action="/submit" data-token="1">
+            <form action="/submit">
                 <input type="hidden" name="amount" value="1000">
                 <div data-contact="1"></div>
                 <button type="submit">Submit</button>
@@ -98,7 +98,6 @@ describe('FormHandler', () => {
 
 		expect(url.pathname).toBe('/donation/my-org')
 		expect(url.searchParams.get('contact')).toBe('1')
-		expect(url.searchParams.get('token')).toBe('1')
 	})
 })
 
@@ -210,6 +209,40 @@ describe('FormHandler events', () => {
 			type: 'recurring',
 			provider: 'mobilepay',
 			due_date: '21',
+		})
+	})
+
+	test('submits the hidden due_date input only for recurring donations', () => {
+		// Fewer than two configured days render a bare hidden input instead of
+		// the selector, but the recurring-only rule must still hold.
+		form.querySelector('[data-recurring-due-date]')!.outerHTML =
+			'<input type="hidden" name="due_date" value="5" data-recurring-due-date-input disabled />'
+		handler = new FormHandler('https://api.lahjoitin.fi', 'my-org', form)
+
+		let captured: FormSubmitEvent | undefined
+		on('fame-lahjoitukset-submit', (event: Event) => {
+			captured = event as FormSubmitEvent
+			event.preventDefault()
+		})
+
+		const dueDate = form.querySelector<HTMLInputElement>('[name="due_date"]')!
+		expect(dueDate.disabled).toBe(true)
+
+		submit()
+		expect(captured?.detail.data).not.toHaveProperty('due_date')
+
+		const recurring = form.querySelector<HTMLInputElement>(
+			'input[name="type"][value="recurring"]'
+		)!
+		recurring.checked = true
+		recurring.dispatchEvent(new Event('change', { bubbles: true }))
+		expect(dueDate.disabled).toBe(false)
+
+		submit()
+
+		expect(captured?.detail.data).toMatchObject({
+			type: 'recurring',
+			due_date: '5',
 		})
 	})
 

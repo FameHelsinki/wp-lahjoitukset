@@ -7,11 +7,8 @@
 	"category": "widgets",
 	"description": "Allows selecting payment providers.",
 	"parent": ["famehelsinki/donation-form"],
-	"usesContext": ["famehelsinki/donation-types"],
 	"attributes": {
 		"showLegend": { "type": "boolean", "default": true },
-		"showLegendSingle": { "type": "boolean", "default": true },
-		"showLegendRecurring": { "type": "boolean", "default": true },
 		"legend": { "type": "string", "default": "" },
 		"providers": { "type": "array", "default": [] },
 		"legendAlign": { "type": "string", "default": "left" }

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { __ } from '@wordpress/i18n'
 import { useSelect } from '@wordpress/data'
 import { localizedDefault } from './localized-default.ts'
@@ -35,9 +36,13 @@ export function getDonationLabel(type: string): string | undefined {
 }
 
 /**
- * Extracts current donation type with gutenberg magic.
+ * Reads the attributes of the donation-type block that belongs to the same form.
+ *
+ * Walk up to the nearest "famehelsinki/donation-form" container and search its descendants.
+ * The returned value is the attributes object straight from the block editor
+ * store.
  */
-export function useCurrentDonationType(clientId: string): string | null {
+function useDonationTypeAttributes(clientId: string): Record<string, any> | null {
 	return useSelect(
 		select => {
 			const be = select('core/block-editor') as any
@@ -72,8 +77,30 @@ export function useCurrentDonationType(clientId: string): string | null {
 					.map(id => getBlock(id))
 					.find((b: any) => b?.name === 'famehelsinki/donation-type') || null
 
-			return typeBlock?.attributes?.value ?? null
+			return typeBlock?.attributes ?? null
 		},
 		[clientId]
 	)
+}
+
+/**
+ * Extracts current donation type with gutenberg magic.
+ */
+export function useCurrentDonationType(clientId: string): string | null {
+	return useDonationTypeAttributes(clientId)?.value ?? null
+}
+
+/**
+ * Donation types enabled for the form this block belongs to.
+ */
+export function useEnabledDonationTypes(clientId: string): string[] | null {
+	const attributes = useDonationTypeAttributes(clientId)
+
+	return useMemo(() => {
+		const values = (Array.isArray(attributes?.types) ? attributes.types : [])
+			.map((type: any) => String(type?.value ?? ''))
+			.filter(Boolean)
+
+		return values.length ? values : null
+	}, [attributes])
 }

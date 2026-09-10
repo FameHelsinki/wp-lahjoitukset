@@ -38,11 +38,16 @@ test.describe('donation form', () => {
 		await expect(canvas.locator('[data-type="famehelsinki/donation-providers"]')).toBeVisible()
 		await expect(canvas.locator('[data-type="famehelsinki/form-controls"]')).toBeVisible()
 
-		// Enable both donation types so the published form exercises the recurring
-		// charge-day selector while keeping single as the default.
-		await editor.selectBlocks(canvas.locator('[data-type="famehelsinki/donation-form"]'))
+		await editor.selectBlocks(canvas.locator('[data-type="famehelsinki/donation-type"]'))
 		await editor.openDocumentSettingsSidebar()
 		await page.getByRole('checkbox', { name: 'Recurring' }).check()
+
+		// The charge-day block hides itself until at least two days are
+		// configured, so pick the days this suite selects from later.
+		await editor.selectBlocks(canvas.locator('[data-type="famehelsinki/recurring-due-date"]'))
+		await page.getByRole('checkbox', { name: 'Day 5', exact: true }).check()
+		await page.getByRole('checkbox', { name: 'Day 21', exact: true }).check()
+		await editor.selectBlocks(canvas.locator('[data-type="famehelsinki/donation-form"]'))
 
 		// The providers block seeds its attributes from the (mocked) backend;
 		// wait for that before saving so the frontend has providers to render.

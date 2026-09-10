@@ -14,7 +14,6 @@
 		"types": { "type": "array", "default": [] },
 		"legendAlign": { "type": "string", "default": "left" }
 	},
-	"usesContext": ["famehelsinki/donation-types"],
 	"supports": {
 		"multiple": false,
 		"color": { "background": false, "text": true },

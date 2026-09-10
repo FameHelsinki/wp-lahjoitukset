@@ -41,7 +41,7 @@ export default class FormHandler {
 	#providerSections: NodeListOf<HTMLElement>
 	#typeRadios: NodeListOf<HTMLInputElement>
 	#dueDateSections: NodeListOf<HTMLElement>
-	#dueDateInputs: NodeListOf<HTMLSelectElement>
+	#dueDateInputs: NodeListOf<HTMLSelectElement | HTMLInputElement>
 
 	get form() {
 		return this.#form
@@ -77,7 +77,9 @@ export default class FormHandler {
 		this.#dueDateSections = this.#form.querySelectorAll<HTMLElement>(
 			'[data-recurring-due-date]'
 		)
-		this.#dueDateInputs = this.#form.querySelectorAll<HTMLSelectElement>(
+		// The day is a <select> when several days are configured and a hidden
+		// input otherwise.
+		this.#dueDateInputs = this.#form.querySelectorAll<HTMLSelectElement | HTMLInputElement>(
 			'[data-recurring-due-date-input]'
 		)
 
@@ -507,11 +509,6 @@ export default class FormHandler {
 		const contact = this.#form.querySelector('[data-contact]')
 		if (contact instanceof HTMLElement && !!contact.dataset.contact) {
 			url.searchParams.append('contact', '1')
-		}
-
-		// Request token.
-		if (!!this.#form.dataset.token) {
-			url.searchParams.append('token', '1')
 		}
 
 		return url

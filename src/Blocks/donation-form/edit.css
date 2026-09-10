@@ -36,6 +36,7 @@
 .editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__input {
 	font-family: inherit;
 	font-size: inherit;
+	box-sizing: border-box;
 }
 
 .editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__row {
@@ -55,6 +56,13 @@
 
 .editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__row > .fame-form__help {
 	flex-basis: 100%;
+}
+
+/* Explains in the editor why a control is not rendered on the front end. */
+.editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__hidden-help {
+	margin: 4px 0 0;
+	color: #757575;
+	font-size: 12px;
 }
 
 .editor-styles-wrapper
@@ -94,12 +102,13 @@
 	color: var(--section-label-color, inherit);
 }
 
-/* Tabs / amount buttons: shared label look */
+/* Tabs / amount buttons / providers: shared label look */
 .editor-styles-wrapper
 .wp-block-famehelsinki-donation-form
 :where(
 	.wp-block-famehelsinki-donation-type .fame-form__label,
-	.wp-block-famehelsinki-donation-amounts .fame-form__label
+	.wp-block-famehelsinki-donation-amounts .fame-form__label,
+	.wp-block-famehelsinki-donation-providers .fame-form__label
 ) {
 	display: flex;
 	width: 100%;
@@ -147,7 +156,7 @@
 :where(
 	.wp-block-famehelsinki-donation-type .fame-form__label,
 	.wp-block-famehelsinki-donation-amounts .fame-form__label,
-	.wp-block-famehelsinki-donation-providers .provider-type__label
+	.wp-block-famehelsinki-donation-providers .fame-form__label
 ).fame-form__label--default {
 	background-color: var(--primary-color, #000);
 	color: var(--secondary-color, #fff);
@@ -159,7 +168,8 @@
 .wp-block-famehelsinki-donation-form
 :where(
 	.wp-block-famehelsinki-donation-type .fame-form__label,
-	.wp-block-famehelsinki-donation-amounts .fame-form__label
+	.wp-block-famehelsinki-donation-amounts .fame-form__label,
+	.wp-block-famehelsinki-donation-providers .fame-form__label
 ):has(:where(input[type="radio"], input[type="checkbox"], .fame-form__check-input):checked) {
 	background-color: var(--primary-color, #000);
 	color: var(--secondary-color, #fff);
@@ -181,13 +191,13 @@
 	font-weight: 400;
 }
 
-/* Editor uses fake input wrappers */
-.editor-styles-wrapper
-.wp-block-famehelsinki-donation-form
-.wp-block-famehelsinki-contact-form
-.fame-form__fake-input {
+/* Editor uses fake input wrappers in place of real inputs. */
+.editor-styles-wrapper .wp-block-famehelsinki-donation-form .fame-form__fake-input {
 	border: var(--border-width, 1px) solid var(--third-color, #000);
 	border-radius: var(--text-field-border-radius, 0);
+	padding: 0.6rem 0.75rem;
+	min-height: 1.7em;
+	box-sizing: border-box;
 }
 
 /* Other amount (editor): label + input */
@@ -280,30 +290,11 @@ input {
 .editor-styles-wrapper
 .wp-block-famehelsinki-donation-form
 .wp-block-famehelsinki-donation-providers
-.fame-form__group
-label {
+.fame-form__group {
 	display: block;
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0 0 16px 0;
-}
-
-.editor-styles-wrapper
-.wp-block-famehelsinki-donation-form
-.wp-block-famehelsinki-donation-providers
-.provider-type__label {
-	width: 100%;
-	min-width: 0;
-	box-sizing: border-box;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	padding: 0.5rem 1rem;
-	border: var(--border-width, 1px) solid var(--button-border-color, var(--primary-color, #000));
-	border-radius: var(--border-radius, 0);
-	cursor: pointer;
 }
 
 /* Controls spacing in editor */
@@ -327,24 +318,14 @@ label {
 
 .editor-styles-wrapper
 .wp-block-famehelsinki-donation-form
-.wp-block-famehelsinki-donation-amounts
-.donation-amounts__other__placeholder {
-	border: var(--border-width, 1px) solid var(--third-color, #000);
-	border-radius: var(--border-radius, 0);
-	padding: 0.6rem 0.75rem;
-	box-sizing: border-box;
-}
-
-.editor-styles-wrapper
-.wp-block-famehelsinki-donation-form
-:where(.fame-form__label, .provider-type__label) {
+:where(.fame-form__label) {
 	font-size: inherit !important;
 	line-height: inherit !important;
 }
 
 .editor-styles-wrapper
 .wp-block-famehelsinki-donation-form
-:where(.fame-form__label *, .provider-type__label *) {
+:where(.fame-form__label *) {
 	font-size: inherit !important;
 }
 

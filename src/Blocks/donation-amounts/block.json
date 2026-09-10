@@ -7,7 +7,6 @@
 	"category": "widgets",
 	"description": "Allows selecting donation amounts.",
 	"parent": ["famehelsinki/donation-form"],
-	"usesContext": ["famehelsinki/donation-types"],
 	"example": {},
 	"attributes": {
 		"settings": {
@@ -19,7 +18,7 @@
 					"defaultAmount": 10,
 					"minAmount": 10,
 					"maxAmount": 10000,
-					"showMaxAmount": false,
+					"helpText": "",
 					"unit": "€",
 					"amounts": [{ "value": 10 }, { "value": 20 }, { "value": 30 }]
 				},
@@ -29,7 +28,7 @@
 					"defaultAmount": 10,
 					"minAmount": 10,
 					"maxAmount": 10000,
-					"showMaxAmount": false,
+					"helpText": "",
 					"unit": "€",
 					"amounts": [{ "value": 10 }, { "value": 20 }, { "value": 30 }]
 				}

@@ -14,14 +14,35 @@ defined('ABSPATH') || exit;
 
 $attributes = $attributes ?? [];
 
+$days = isset($attributes['days']) && is_array($attributes['days'])
+  ? $attributes['days']
+  : [];
+
+$days = array_filter(array_map(static function ($day): int {
+  return (int) $day;
+}, $days), static function (int $day): bool {
+  return $day >= 1 && $day <= 28;
+});
+
+$days = array_values(array_unique($days));
+sort($days);
+
+if (count($days) <= 1) :
+  $day = $days[0] ?? 5;
+?>
+  <input type="hidden" name="due_date" value="<?php echo esc_attr((string) $day); ?>" data-recurring-due-date-input disabled />
+<?php
+  return;
+endif;
+
 $label_raw = trim((string) ($attributes['label'] ?? ''));
 $label = $label_raw === '' || $label_raw === 'Charge day'
   ? __('Charge day', 'fame_lahjoitukset')
   : $label_raw;
 $show_label = array_key_exists('showLabel', $attributes) ? (bool) $attributes['showLabel'] : true;
-$default_day = isset($attributes['defaultDay']) ? (int) $attributes['defaultDay'] : 5;
-$default_day = max(1, min(28, $default_day));
+$default_day = $days[0];
 $select_id = wp_unique_id('recurring-due-date-');
+$help_id = $select_id . '-help';
 $wrapper_attrs = get_block_wrapper_attributes([
   'class' => 'fame-form__fieldset recurring-due-date',
   'data-recurring-due-date' => '1',
@@ -40,15 +61,16 @@ $wrapper_attrs = get_block_wrapper_attributes([
     name="due_date"
     class="fame-form__input"
     data-recurring-due-date-input
+    aria-describedby="<?php echo esc_attr($help_id); ?>"
     required
     disabled>
-    <?php for ($day = 1; $day <= 28; $day++) : ?>
+    <?php foreach ($days as $day) : ?>
       <option value="<?php echo esc_attr((string) $day); ?>" <?php selected($day, $default_day); ?>>
         <?php echo esc_html((string) $day); ?>
       </option>
-    <?php endfor; ?>
+    <?php endforeach; ?>
   </select>
-  <span class="fame-form__help">
+  <span id="<?php echo esc_attr($help_id); ?>" class="fame-form__help">
     <?php echo esc_html__('The donation will be charged on this day each month.', 'fame_lahjoitukset'); ?>
   </span>
 </div>

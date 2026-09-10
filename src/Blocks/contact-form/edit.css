@@ -1,9 +1,3 @@
-.contact-form .fame-form__fake-input {
-	border: var(--form-element-border);
-	padding: var(--form-element-padding);
-	height: 1.7em;
-}
-
 .fame-form__label {
 	font-size: inherit !important;
 }

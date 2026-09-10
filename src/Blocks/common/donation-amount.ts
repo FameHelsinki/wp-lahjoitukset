@@ -18,7 +18,7 @@ export type AmountSetting = {
 	amounts?: Amount[]
 	minAmount?: number | string
 	maxAmount?: number | string
-	showMaxAmount?: boolean
+	helpText?: string
 }
 
 export const formatAmount = (amount?: string | number, def = DEFAULT_AMOUNT) =>
@@ -32,8 +32,11 @@ export function nextAmount(amounts?: Amount[]): number {
 	return formatAmount(previous, 0) + DEFAULT_AMOUNT
 }
 
+/**
+ * Whether the block renders a visible field instead of a lone hidden input.
+ */
 export const isVisible = (other?: boolean, settings?: AmountSetting[]) =>
-	!!(other || settings?.some(type => type?.amounts?.length))
+	!!(other || settings?.some(type => type?.amounts?.some(amount => !!amount?.value)))
 
 export type DerivedAmount = Required<AmountSetting> & { amounts: Amount[] }
 

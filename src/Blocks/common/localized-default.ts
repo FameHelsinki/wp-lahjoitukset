@@ -7,5 +7,6 @@ export function localizedDefault(
 	legacyDefault: string,
 	translatedDefault: string
 ): string {
-	return !value?.trim() || value === legacyDefault ? translatedDefault : value
+	const trimmed = value?.trim() ?? ''
+	return trimmed === '' || trimmed === legacyDefault ? translatedDefault : value!
 }

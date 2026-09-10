@@ -12,6 +12,7 @@ import ContactInputControl from './ContactInputControl.tsx'
 import ContactInputGroup from './ContactInputGroup.tsx'
 import { EditProps } from '../common/types.ts'
 import { localizedDefault } from '../common/localized-default.ts'
+import { captionStrings } from '../common/strings.ts'
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -22,11 +23,9 @@ import { localizedDefault } from '../common/localized-default.ts'
 export default function Edit({ attributes, setAttributes }: EditProps): React.JSX.Element {
 	const { contact, showAddress, showPhone, showLegend, legend, legendAlign = 'left' } = attributes
 	const { show = true } = attributes as { show?: boolean }
-	const localizedLegend = localizedDefault(
-		legend,
-		'Contacts',
-		__('Contacts', 'fame_lahjoitukset')
-	)
+	const strings = captionStrings('legend')
+	const translatedLegend = __('Contacts', 'fame_lahjoitukset')
+	const localizedLegend = localizedDefault(legend, 'Contacts', translatedLegend)
 
 	return (
 		<>
@@ -68,20 +67,14 @@ export default function Edit({ attributes, setAttributes }: EditProps): React.JS
 								onChange={value => setAttributes({ showPhone: value })}
 							/>
 							<ToggleControl
-								label={__('Show legend', 'fame_lahjoitukset')}
+								label={strings.visibilityLabel}
 								checked={showLegend}
 								onChange={checked => setAttributes({ showLegend: checked })}
-								help={__(
-									'If disabled, the legend is marked visually hidden.',
-									'fame_lahjoitukset'
-								)}
+								help={strings.visibilityHelp}
 							/>
 							<TextControl
-								label={__('Legend', 'fame_lahjoitukset')}
-								help={__(
-									'Description for screen readers (for accessibility).',
-									'fame_lahjoitukset'
-								)}
+								label={strings.captionLabel}
+								help={strings.captionHelp}
 								value={localizedLegend}
 								onChange={value => setAttributes({ legend: value })}
 							/>
@@ -104,8 +97,8 @@ export default function Edit({ attributes, setAttributes }: EditProps): React.JS
 								]
 									.filter(Boolean)
 									.join(' ')}
-								aria-label={__('Legend', 'fame_lahjoitukset')}
-								placeholder={__('Contacts', 'fame_lahjoitukset')}
+								aria-label={strings.captionLabel}
+								placeholder={translatedLegend}
 								allowedFormats={[]}
 								value={localizedLegend}
 								onChange={value => setAttributes({ legend: value })}

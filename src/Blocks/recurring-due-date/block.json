@@ -10,9 +10,8 @@
 	"attributes": {
 		"label": { "type": "string", "default": "" },
 		"showLabel": { "type": "boolean", "default": true },
-		"defaultDay": { "type": "number", "default": 5 }
+		"days": { "type": "array", "default": [] }
 	},
-	"usesContext": ["famehelsinki/donation-types"],
 	"supports": {
 		"multiple": false,
 		"color": { "background": false, "text": true },

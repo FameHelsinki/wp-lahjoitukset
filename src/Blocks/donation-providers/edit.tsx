@@ -21,8 +21,13 @@ import {
 import { EditProps } from '../common/types.ts'
 import { Provider, providerDisplayLabel } from '../common/Providers.ts'
 import { useProviders } from '../common/useProviders.ts'
-import { getDonationLabel, useCurrentDonationType } from '../common/donation-type.ts'
+import {
+	getDonationLabel,
+	useCurrentDonationType,
+	useEnabledDonationTypes,
+} from '../common/donation-type.ts'
 import { localizedDefault } from '../common/localized-default.ts'
+import { captionStrings } from '../common/strings.ts'
 
 export type FlatProvider = Provider & { type: string }
 
@@ -36,11 +41,7 @@ const DEFAULT_TERMS_PLACEHOLDERS = new Set([
 export type Attributes = {
 	legend?: string
 	providers?: FlatProvider[]
-
-	// old (fallback)
 	showLegend?: boolean
-	showLegendSingle?: boolean
-	showLegendRecurring?: boolean
 	legendAlign?: string
 }
 
@@ -50,20 +51,14 @@ export type Attributes = {
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
  */
-export default function Edit({
-	attributes,
-	setAttributes,
-	context,
-	clientId,
-}: EditProps<Attributes>) {
+export default function Edit({ attributes, setAttributes, clientId }: EditProps<Attributes>) {
 	const {
 		providers = [],
 		legend: savedLegend,
 		showLegend = true,
-		showLegendSingle,
-		showLegendRecurring,
 		legendAlign = 'left',
 	} = attributes
+	const strings = captionStrings('legend')
 	const translatedLegend = __('Payment provider', 'fame_lahjoitukset')
 	const legend = localizedDefault(
 		localizedDefault(savedLegend, 'Provider type', translatedLegend),
@@ -71,11 +66,7 @@ export default function Edit({
 		translatedLegend
 	)
 
-	const donationTypes: string[] = useMemo(
-		() => context['famehelsinki/donation-types'] || [],
-		[context]
-	)
-
+	const donationTypes = useEnabledDonationTypes(clientId)
 	const currentType = useCurrentDonationType(clientId)
 	const blockProps = useBlockProps()
 	const termsPlaceholder = __('Add privacy policy and terms text here…', 'fame_lahjoitukset')
@@ -118,28 +109,12 @@ export default function Edit({
 		})
 	}, [rawAvailable])
 
-	const isLegendShownForType = (type: string) => {
-		if (type === 'single') return showLegendSingle ?? showLegend ?? true
-		if (type === 'recurring') return showLegendRecurring ?? showLegend ?? true
-		return showLegend ?? true
-	}
-
-	const setLegendShownForType = (type: string, checked: boolean) => {
-		if (type === 'single') {
-			setAttributes({ showLegendSingle: checked })
-			return
-		}
-		if (type === 'recurring') {
-			setAttributes({ showLegendRecurring: checked })
-			return
-		}
-		setAttributes({ showLegend: checked })
-	}
-
 	useEffect(() => {
 		// Wait until the available providers have loaded so we don't seed
 		// defaults from an empty list before the API responds.
 		if (!available.length) return
+		// Enabled donation types are not known yet.
+		if (!donationTypes) return
 
 		const missing = donationTypes.filter(type => !providers.some(p => p.type === type))
 		if (!missing.length) return
@@ -160,6 +135,9 @@ export default function Edit({
 		// providers disabled for the organization must not remain visible in the
 		// preview without a corresponding checkbox in the inspector.
 		if (loading || error) return
+		// Without the enabled donation types every saved provider would be
+		// filtered out below, so leave the selections alone.
+		if (!donationTypes) return
 
 		const paytrail = available.find(p => p.value.toLowerCase() === 'paytrail')
 		const normalized: FlatProvider[] = []
@@ -209,6 +187,11 @@ export default function Edit({
 		return acc
 	}, {})
 
+	// A donation type with a single provider submits it with a hidden input and
+	// renders no legend at all.
+	const groups = Object.values(grouped)
+	const legendNeverRendered = groups.length > 0 && groups.every(list => list.length === 1)
+
 	const updateProvider = (donationType: string, value: string, checked: boolean) => {
 		const current = grouped[donationType] ?? []
 		const exists = current.find(p => p.value === value)
@@ -256,14 +239,19 @@ export default function Edit({
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={__('General settings', 'fame_lahjoitukset')}>
+					<ToggleControl
+						label={strings.visibilityLabel}
+						help={strings.visibilityHelp}
+						checked={showLegend}
+						disabled={legendNeverRendered}
+						onChange={value => setAttributes({ showLegend: value })}
+					/>
 					<TextControl
-						label={__('Legend', 'fame_lahjoitukset')}
+						label={strings.captionLabel}
 						value={legend}
+						disabled={legendNeverRendered}
 						onChange={value => setAttributes({ legend: value })}
-						help={__(
-							'Description for screen readers (for accessibility).',
-							'fame_lahjoitukset'
-						)}
+						help={strings.captionHelp}
 					/>
 				</PanelBody>
 				{loading && (
@@ -294,19 +282,12 @@ export default function Edit({
 						</Notice>
 					</PanelBody>
 				)}
-				{donationTypes.map(type => {
+				{(donationTypes ?? []).map(type => {
 					const selected = new Set((grouped[type] ?? []).map(p => p.value))
-					const showForType = isLegendShownForType(type)
 
 					return (
 						<PanelBody title={getDonationLabel(type)} key={type}>
 							<Flex direction="column" gap={2}>
-								<ToggleControl
-									label={__('Show legend', 'fame_lahjoitukset')}
-									checked={showForType}
-									onChange={checked => setLegendShownForType(type, checked)}
-								/>
-
 								{available
 									.filter(p => p.types.includes(type))
 									.map(p => (
@@ -339,7 +320,6 @@ export default function Edit({
 					if (currentType && type !== currentType) return null
 
 					const isSingle = list.length === 1
-					const showForType = isLegendShownForType(type)
 
 					return (
 						<fieldset
@@ -348,13 +328,13 @@ export default function Edit({
 							style={{ width: '100%', boxSizing: 'border-box' }}
 							data-type={type}
 						>
-							{showForType && (
+							{showLegend && !isSingle && (
 								<RichText
 									tagName="legend"
 									multiline={false}
 									className="fame-form__legend"
-									aria-label={__('Legend', 'fame_lahjoitukset')}
-									placeholder={__('Donation provider', 'fame_lahjoitukset')}
+									aria-label={strings.captionLabel}
+									placeholder={translatedLegend}
 									allowedFormats={[]}
 									value={legend}
 									onChange={le => setAttributes({ legend: le })}
@@ -367,18 +347,12 @@ export default function Edit({
 
 							{isSingle ? (
 								<div>
-									<div className="fame-form__label">
-										{__('Payment provider', 'fame_lahjoitukset')}:{' '}
+									<div>
+										{legend}:{' '}
 										{providerDisplayLabel(list[0].value, list[0].label)} (
 										{__('hidden', 'fame_lahjoitukset')})
 									</div>
-									<p
-										style={{
-											color: '#757575',
-											fontSize: 12,
-											margin: '4px 0 0',
-										}}
-									>
+									<p className="fame-form__hidden-help">
 										{__(
 											'Hidden because only one payment provider is configured.',
 											'fame_lahjoitukset'
@@ -392,23 +366,16 @@ export default function Edit({
 										key={`${type}-${p.value}`}
 										data-type={type}
 									>
-										<label htmlFor={`payment_method_${type}_${p.value}`}>
-											<input
-												type="radio"
-												id={`payment_method_${type}_${p.value}`}
-												name={`payment_method_${type}`}
-												value={p.value}
-												disabled
-											/>
+										{/* Placeholder mimics the radio button in Gutenberg UI. */}
+										<div className="fame-form__label">
 											<RichText
 												tagName="span"
-												className="provider-type__label"
 												value={providerDisplayLabel(p.value, p.label)}
 												onChange={val => updateLabel(type, p.value, val)}
 												allowedFormats={[]}
 												placeholder={__('Label', 'fame_lahjoitukset')}
 											/>
-										</label>
+										</div>
 									</div>
 								))
 							)}

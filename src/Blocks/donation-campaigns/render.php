@@ -15,7 +15,6 @@ defined('ABSPATH') || exit;
 /** @var array<string, mixed>|null $attributes */
 $attributes = $attributes ?? [];
 
-$show      = array_key_exists('show', $attributes) ? (bool) $attributes['show'] : false;
 $campaigns = isset($attributes['campaigns']) && is_array($attributes['campaigns'])
   ? $attributes['campaigns']
   : [];
@@ -26,7 +25,7 @@ $campaigns = array_values(array_filter(array_map(static function ($campaign): st
   return $campaign !== '';
 }));
 
-if (!$show || count($campaigns) === 0) {
+if (count($campaigns) === 0) {
   return;
 }
 
@@ -48,11 +47,11 @@ $wrapper_attrs = get_block_wrapper_attributes([
 
 ?>
 <div <?php echo $wrapper_attrs; ?>>
-  <?php if ($showLabel) : ?>
-    <label for="campaign" class="fame-form__label">
-      <?php echo esc_html($label); ?>
-    </label>
-  <?php endif; ?>
+  <label
+    for="campaign"
+    class="<?php echo esc_attr($showLabel ? 'fame-form__label' : 'fame-form__label screen-reader-text'); ?>">
+    <?php echo esc_html($label); ?>
+  </label>
 
   <select name="campaign" id="campaign" class="fame-form__input">
     <option value="" selected>

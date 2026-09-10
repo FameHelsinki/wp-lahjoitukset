@@ -27,8 +27,6 @@ $legend = $legend_raw === '' || in_array($legend_raw, ['Payment provider', 'Prov
   : $legend_raw;
 
 $showLegend = array_key_exists('showLegend', $attributes) ? (bool) $attributes['showLegend'] : true;
-$showLegendSingle = array_key_exists('showLegendSingle', $attributes) ? (bool) $attributes['showLegendSingle'] : null;
-$showLegendRecurring = array_key_exists('showLegendRecurring', $attributes) ? (bool) $attributes['showLegendRecurring'] : null;
 
 $grouped = [];
 foreach ($providers as $p) {
@@ -116,15 +114,11 @@ if ($providers_unavailable) {
   $providers_unavailable = $grouped === [];
 }
 
-$isLegendShownForType = static function (string $type) use ($showLegend, $showLegendSingle, $showLegendRecurring): bool {
-  if ($type === 'single') {
-    return $showLegendSingle ?? $showLegend;
-  }
-  if ($type === 'recurring') {
-    return $showLegendRecurring ?? $showLegend;
-  }
-  return $showLegend;
-};
+$legendAlign_raw = isset($attributes['legendAlign']) ? (string) $attributes['legendAlign'] : 'left';
+$legendAlign     = in_array($legendAlign_raw, ['left', 'center', 'right', 'justify'], true)
+  ? $legendAlign_raw
+  : 'left';
+$legend_style = 'text-align:' . $legendAlign . ';';
 
 $wrapper_attrs = get_block_wrapper_attributes();
 
@@ -138,21 +132,21 @@ $wrapper_attrs = get_block_wrapper_attributes();
 
   <?php foreach ($grouped as $type => $list) :
     $single = count($list) === 1;
-    $showForType = $isLegendShownForType((string) $type);
 
-    $legendAlign_raw = isset($attributes['legendAlign']) ? (string) $attributes['legendAlign'] : 'left';
-    $legendAlign     = in_array($legendAlign_raw, ['left', 'center', 'right', 'justify'], true)
-      ? $legendAlign_raw
-      : 'left';
-    $legend_class = 'fame-form__legend' . ($showForType ? '' : ' screen-reader-text');
-    $legend_style = 'text-align:' . $legendAlign . ';';
+    // A single provider renders as a hidden input, so there is nothing for the
+    // legend to label: drop it entirely instead of exposing it to assistive tech.
+    $legend_class = 'fame-form__legend' . ($showLegend ? '' : ' screen-reader-text');
+    $fieldset_class = 'payment-method-selector fame-form__fieldset'
+      . ($single ? ' payment-method-selector--hidden' : '');
   ?>
     <fieldset
-      class="payment-method-selector fame-form__fieldset"
+      class="<?php echo esc_attr($fieldset_class); ?>"
       data-type="<?php echo esc_attr((string) $type); ?>">
-      <legend class="<?php echo esc_attr($legend_class); ?>" style="<?php echo esc_attr($legend_style); ?>">
-        <?php echo esc_html($legend); ?>
-      </legend>
+      <?php if (!$single) : ?>
+        <legend class="<?php echo esc_attr($legend_class); ?>" style="<?php echo esc_attr($legend_style); ?>">
+          <?php echo esc_html($legend); ?>
+        </legend>
+      <?php endif; ?>
 
       <?php if ($single) : ?>
         <input
@@ -172,7 +166,7 @@ $wrapper_attrs = get_block_wrapper_attributes();
         <div
           class="fame-form__group"
           data-type="<?php echo esc_attr($ptype); ?>">
-          <label for="<?php echo esc_attr($id); ?>">
+          <label for="<?php echo esc_attr($id); ?>" class="fame-form__label">
             <input
               class="fame-form__check-input"
               type="radio"
@@ -181,9 +175,7 @@ $wrapper_attrs = get_block_wrapper_attributes();
               value="<?php echo esc_attr($pval); ?>"
               data-type="<?php echo esc_attr($ptype); ?>"
               required />
-            <span class="provider-type__label">
-              <?php echo esc_html($plab); ?>
-            </span>
+            <?php echo esc_html($plab); ?>
           </label>
         </div>
 

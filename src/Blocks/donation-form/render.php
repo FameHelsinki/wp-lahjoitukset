@@ -59,7 +59,6 @@ if (!function_exists('famehelsinki_sanitize_return_url')) {
 
 $attrs = wp_parse_args($attributes, [
   'returnAddress'         => '/',
-  'token'                 => false,
   'primaryColor'          => '#000000',
   'secondaryColor'        => '#FFFFFF',
   'buttonBorderColor'     => '',
@@ -106,8 +105,6 @@ $block_wrapper_attrs = get_block_wrapper_attributes([
   'style' => $wrapper_style,
 ]);
 
-$token_attr = !empty($attrs['token']) ? ' data-token="1"' : '';
-
 /**
  * Render inner blocks robustly:
  * - Prefer parsed block tree ($block->inner_blocks)
@@ -126,7 +123,7 @@ if ($block instanceof WP_Block && count($block->inner_blocks) > 0) {
 $return_address = famehelsinki_sanitize_return_url((string) ($attrs['returnAddress'] ?? '/'));
 ?>
 <div <?php echo $block_wrapper_attrs; ?>>
-  <form class="fame-form fame-form--donations" <?php echo $token_attr; ?> novalidate>
+  <form class="fame-form fame-form--donations" novalidate>
     <div class="fame-form__inner">
       <?php echo $inner; ?>
     </div>

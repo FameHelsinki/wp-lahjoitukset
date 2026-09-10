@@ -165,7 +165,7 @@ endif;
     $unit          = $str($type_setting['unit'] ?? null, $DEFAULT_UNIT);
     $min_amount    = $int($type_setting['minAmount'] ?? null, $MIN_AMOUNT);
     $max_amount    = $int($type_setting['maxAmount'] ?? null, $MAX_AMOUNT);
-    $show_max_amount = !empty($type_setting['showMaxAmount']);
+    $help_text     = trim($str($type_setting['helpText'] ?? null, ''));
     $default_euros = $int($type_setting['defaultAmount'] ?? null, $DEFAULT_AMOUNT);
 
     $amounts = isset($type_setting['amounts']) && is_array($type_setting['amounts']) ? $type_setting['amounts'] : [];
@@ -211,8 +211,8 @@ endif;
     </div>
 
     <?php if ($other) :
-      $other_id  = "{$type}-other";
-      $minmax_id = "{$type}-minmax";
+      $other_id = "{$type}-other";
+      $help_id  = "{$type}-amount-help";
     ?>
       <div
         class="donation-amounts__other"
@@ -234,21 +234,14 @@ endif;
             min="<?php echo esc_attr((string) $min_amount); ?>"
             max="<?php echo esc_attr((string) $max_amount); ?>"
             value="<?php echo esc_attr((string) $default_euros); ?>"
-            aria-describedby="<?php echo esc_attr($minmax_id); ?>" />
-          <span class="donation-amounts__minmax" id="<?php echo esc_attr($minmax_id); ?>">
-            <?php
-            echo esc_html__('Min', 'fame_lahjoitukset') . ' '
-              . esc_html(number_format((float) $min_amount, 0, ',', ' '))
-              . esc_html($unit);
-
-            if ($show_max_amount) {
-              echo ' – '
-                . esc_html__('Max', 'fame_lahjoitukset') . ' '
-                . esc_html(number_format((float) $max_amount, 0, ',', ' '))
-                . esc_html($unit);
-            }
-            ?>
-          </span>
+            <?php if ($help_text !== '') : ?>
+            aria-describedby="<?php echo esc_attr($help_id); ?>"
+            <?php endif; ?> />
+          <?php if ($help_text !== '') : ?>
+            <small id="<?php echo esc_attr($help_id); ?>" class="fame-form__help">
+              <?php echo esc_html($help_text); ?>
+            </small>
+          <?php endif; ?>
         </div>
       </div>
     <?php endif; ?>

@@ -9,7 +9,6 @@
 	"parent": ["famehelsinki/donation-form"],
 	"example": {},
 	"attributes": {
-		"show": { "type": "boolean", "default": false },
 		"campaigns": { "type": "array", "default": [] },
 		"label": { "type": "string", "default": "" },
 		"showLabel": { "type": "boolean", "default": true }

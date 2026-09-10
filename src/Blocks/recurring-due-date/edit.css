@@ -4,9 +4,3 @@
 	margin-block-start: var(--fame-field-gap, 0.25rem) !important;
 	margin-inline: 0;
 }
-
-.editor-styles-wrapper .wp-block-famehelsinki-recurring-due-date .recurring-due-date__hidden-help {
-	margin: 4px 0 0;
-	color: #757575;
-	font-size: 12px;
-}

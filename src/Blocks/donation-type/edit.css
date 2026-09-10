@@ -13,3 +13,8 @@
 	display: block;
 	width: 100%;
 }
+
+/* Separates the enabled types from the default donation type heading. */
+.donation-type__enabled-types {
+	margin-bottom: 16px;
+}
